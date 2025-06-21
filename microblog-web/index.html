@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroBlog Retro</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyR0HV
+ZGo5utL+NTGHKHtOD3T9" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <h1>MicroBlog Retro</h1>
+    </header>
+    <main>
+        <section id="create-post-section">
+            <h2>New Post</h2>
+            <!-- This form will submit data. On successful submission, it will trigger the 'newPostEvent' -->
+            <form hx-post="http://localhost:8080/v1/posts"
+                  hx-on::after-request="if(event.detail.successful) { htmx.trigger('#posts-list', 'newPostEvent'); this.reset(); }"
+                  hx-swap="none"> {/* We don't want to swap content from the POST response itself */}
+                <div>
+                    <label for="authorId">Author ID:</label>
+                    <input type="text" id="authorId" name="authorId" value="user_frontend_test" required>
+                    <small>(Temporary - will be automatic after login)</small>
+                </div>
+                <div>
+                    <label for="content">Content (max 280 chars):</label>
+                    <textarea id="content" name="content" rows="3" maxlength="280" required></textarea>
+                </div>
+                <button type="submit">Post It!</button>
+            </form>
+        </section>
+
+        <section id="posts-section">
+            <h2>Latest Posts</h2>
+            <div id="posts-list"
+                 hx-get="http://localhost:8080/v1/posts/user/user_frontend_test"
+                 hx-trigger="load, newPostEvent from:body" /* Listen for the custom event */
+                 hx-on:htmx:after-request="
+                    if(event.detail.successful && event.detail.target.id === 'posts-list' && event.detail.xhr.getResponseHeader('Content-Type').includes('application/json')) {
+                        let posts = JSON.parse(event.detail.xhr.responseText);
+                        let html = '';
+                        if (posts && posts.length > 0) {
+                            posts.forEach(post => {
+                                html += '<article class=\\'post-item\\'><h3>' + (post.author.displayName || post.author.username) + '</h3>' +
+                                        '<p>' + post.content.replace(/\\n/g, '<br>') + '</p>' +
+                                        '<small>Posted on: ' + new Date(post.createdAt).toLocaleString() + '</small></article>';
+                            });
+                        } else {
+                            html = '<p>No posts found for this user, or user does not exist.</p>';
+                        }
+                        this.innerHTML = html;
+                    } else if (event.detail.failed && event.detail.target.id === 'posts-list') {
+                        let message = 'Error loading posts.';
+                        if (event.detail.xhr) {
+                            try {
+                                let errorResponse = JSON.parse(event.detail.xhr.responseText);
+                                message = 'Error loading posts: ' + (errorResponse.error || errorResponse.message || event.detail.xhr.statusText);
+                            } catch (e) {
+                                message = 'Error loading posts: Status ' + event.detail.xhr.status + ' - ' + event.detail.xhr.statusText;
+                            }
+                        }
+                        this.innerHTML = '<p style=\\'color:red;\\'>' + message + '</p>';
+                    }
+                 ">
+                <p>Loading posts...</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>(c) 2025 MicroBlog Inc.</p>
+    </footer>
+</body>
+</html>

@@ -18,46 +18,36 @@ class PostResourceTest {
 
     var testUser: UserDTO? = null
 
-    // Helper to create a user before tests that need an author
     @BeforeEach
-    @Transactional // Ensure this setup runs in a transaction and can be rolled back or committed
+    @Transactional
     fun setup() {
-        // Clean up any existing users/posts to ensure test isolation if needed,
-        // though @QuarkusTest usually handles this per test class or method depending on config.
-        // For simplicity, we'll assume a clean state or rely on transactional rollback.
-
-        // Delete all posts and users to ensure a clean slate for post counts
-        // Note: In a real app with foreign keys, delete posts before users.
-        given()
-            .get("/v1/posts/user/someNonExistentUser") // Dummy call to list, then iterate and delete if any found
-            .then()
-            .statusCode(anyOf(equalTo(200), equalTo(404))) // Allow 404 if user not found, 200 if found but no posts
-            .extract().`as`(Array<PostDTO>::class.java).forEach { post ->
-                given().delete("/v1/posts/${post.id}").then().statusCode(anyOf(equalTo(204), equalTo(404)))
-            }
-
-        // A more robust cleanup would be direct DB manipulation or a dedicated cleanup endpoint if available
-        // User.deleteAll() // This would be ideal if User entity is accessible and configured for test transactions
-        // For now, we'll register a new unique user for each test setup if 'testUser' is null,
-        // or re-fetch if already created to ensure its state is current.
+        // Clean up database before each test for isolation
+        Post.deleteAll()
+        User.deleteAll()
 
         val username = "testuser_post_${System.currentTimeMillis()}"
         val userRequest = RegisterUserRequest(
             username = username,
-            password = "password123", // Password not used by PostResource but required by RegisterUserRequest
+            password = "password123",
             displayName = "Test User for Posts",
             bio = "Testing posts"
         )
 
-        val createdUser = given()
+        // More robust user creation for setup
+        val response = given()
             .contentType(ContentType.JSON)
             .body(userRequest)
             .post("/v1/users")
             .then()
-            .statusCode(201)
-            .extract().`as`(UserDTO::class.java)
+            .extract()
 
-        assertNotNull(createdUser.id)
+        if (response.statusCode() != 201) {
+            throw RuntimeException("Failed to create user in test setup. Status: ${response.statusCode()}. Raw response: ${response.asStringDontClenseBody()}")
+        }
+
+        val createdUser = response.body().`as`(UserDTO::class.java)
+
+        assertNotNull(createdUser?.id, "Created user ID should not be null in setup")
         this.testUser = createdUser
     }
 
@@ -84,13 +74,8 @@ class PostResourceTest {
 
         assertNotNull(createdPost.id)
 
-        // Verify user's postCount increased
-        val updatedUser = given()
-            .get("/v1/users/${currentTestUser.id}")
-            .then()
-            .statusCode(200)
-            .extract().`as`(UserDTO::class.java)
-        assertEquals(currentTestUser.postCount + 1, updatedUser.postCount, "Post count should increment after creating a post.")
+        val userAfterPostCreation = User.findById(currentTestUser.id)!!
+        assertEquals(1, userAfterPostCreation.postCount, "Post count should be 1 after creating a post.")
 
 
         // 2. Get Created Post by ID
@@ -107,8 +92,8 @@ class PostResourceTest {
             .get("/v1/posts/user/${currentTestUser.id}")
             .then()
             .statusCode(200)
-            .body("size()", equalTo(updatedUser.postCount)) // Should match the updated post count
-            .body("[0].id", equalTo(createdPost.id)) // Assuming latest post is first (default order might vary)
+            .body("size()", equalTo(1))
+            .body("[0].id", equalTo(createdPost.id))
             .body("[0].content", equalTo(postContent))
 
         // Create another post to test pagination and count
@@ -122,8 +107,8 @@ class PostResourceTest {
             .statusCode(201)
             .extract().`as`(PostDTO::class.java)
 
-        val userAfterSecondPost = User.findById(currentTestUser.id)!!.toDTO() // Re-fetch user to get latest postCount
-        assertEquals(currentTestUser.postCount + 2, userAfterSecondPost.postCount, "Post count should be 2 after second post.")
+        val userAfterSecondPost = User.findById(currentTestUser.id)!!
+        assertEquals(2, userAfterSecondPost.postCount, "Post count should be 2 after second post.")
 
 
         given()
@@ -131,9 +116,6 @@ class PostResourceTest {
             .then()
             .statusCode(200)
             .body("size()", equalTo(1))
-            // Order is by createdAt descending, new post should be first if not specified
-            // Panache default order is not guaranteed without .orderBy() in query
-            // For now, check if one of them is returned
 
         given()
             .get("/v1/posts/user/${currentTestUser.id}?limit=1&offset=1")
@@ -148,9 +130,8 @@ class PostResourceTest {
             .then()
             .statusCode(204)
 
-        // Verify user's postCount decreased
-        val userAfterDelete = User.findById(currentTestUser.id)!!.toDTO()
-        assertEquals(userAfterSecondPost.postCount -1, userAfterDelete.postCount, "Post count should decrement after deleting a post.")
+        val userAfterDelete = User.findById(currentTestUser.id)!!
+        assertEquals(1, userAfterDelete.postCount, "Post count should decrement after deleting a post.")
 
 
         // Try to get deleted post - should be 404
@@ -165,9 +146,8 @@ class PostResourceTest {
             .then()
             .statusCode(204)
 
-        val userAfterAllDeletes = User.findById(currentTestUser.id)!!.toDTO()
+        val userAfterAllDeletes = User.findById(currentTestUser.id)!!
         assertEquals(0, userAfterAllDeletes.postCount, "Post count should be 0 after all posts are deleted.")
-
     }
 
     @Test
@@ -180,7 +160,7 @@ class PostResourceTest {
             .body(createPostRequest)
             .post("/v1/posts")
             .then()
-            .statusCode(404) // Author not found
+            .statusCode(404)
             .body("error", containsString("Author (User) not found"))
     }
 
@@ -197,7 +177,7 @@ class PostResourceTest {
         given()
             .get("/v1/posts/user/user_nonexistent_${System.currentTimeMillis()}")
             .then()
-            .statusCode(404) // User not found
+            .statusCode(404)
             .body("error", containsString("User not found"))
     }
 
@@ -209,19 +189,6 @@ class PostResourceTest {
             .statusCode(404)
     }
 
-    // Helper to convert User entity to UserDTO for tests, assuming User entity is accessible.
-    // If User entity is not directly accessible in test scope due to module restrictions,
-    // then rely on fetching UserDTO via API calls.
-    private fun User.toDTO(): UserDTO {
-        return UserDTO(
-            id = this.id,
-            username = this.username,
-            displayName = this.displayName,
-            bio = this.bio,
-            joinDate = this.joinDate.toString(), // Ensure joinDate is not null
-            postCount = this.postCount,
-            followerCount = this.followerCount,
-            followingCount = this.followingCount
-        )
-    }
+    // Removed User.toDTO() as it's not strictly needed if User entity isn't directly used for assertions after this point.
+    // API calls should return DTOs.
 }
