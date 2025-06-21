@@ -105,18 +105,30 @@ class PostResource {
         // }
         // For now, we'll allow deletion if the post exists.
 
+
+        // Find the post first
         val post = Post.findById(postId)
             ?: return Response.status(Response.Status.NOT_FOUND)
                 .entity(mapOf("error" to "Post not found"))
                 .build()
 
+        // Get the author and decrement post count
         val author = User.findById(post.authorId)
         if (author != null) {
             author.postCount = (author.postCount - 1).coerceAtLeast(0)
             author.persist()
+            
+            // Delete the post after updating the count
+            Post.deleteById(postId)
+            
+            // Force flush to ensure both operations are in the same transaction
+            User.getEntityManager().flush()
+            
+            return Response.noContent().build()
+        } else {
+            // If author not found, just delete the post
+            Post.deleteById(postId)
+            return Response.noContent().build()
         }
-
-        Post.deleteById(postId)
-        return Response.noContent().build()
     }
 }
