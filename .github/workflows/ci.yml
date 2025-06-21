@@ -1,0 +1,62 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      # Use PostgreSQL for testing
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: quarkus
+          POSTGRES_PASSWORD: quarkus
+          POSTGRES_DB: quarkusdb
+        ports:
+          - 5432:5432
+        # Needed because the postgres container does not provide a healthcheck
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+        
+    - name: Build and test with Maven
+      run: |
+        ./mvnw -B verify -Dquarkus.profile=test
+        
+    # Optional: Add a step to upload test results as an artifact
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          **/target/surefire-reports/*
+          **/target/failsafe-reports/*
+        retention-days: 7
+        
+    # Optional: Add a step to upload build logs
+    - name: Upload build logs
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-logs
+        path: |
+          **/target/*.log
+        retention-days: 7
