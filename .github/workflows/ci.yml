@@ -38,7 +38,16 @@ jobs:
         
     - name: Build and test with Maven
       run: |
-        ./mvnw -B verify -Dquarkus.profile=test
+        ./mvnw -B verify -Dquarkus.profile=test jacoco:report
+        
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: |
+          **/target/site/jacoco/
+          **/target/site/jacoco.xml
+        retention-days: 7
         
     # Optional: Add a step to upload test results as an artifact
     - name: Upload test results
