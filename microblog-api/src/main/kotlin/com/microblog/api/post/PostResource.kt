@@ -81,7 +81,7 @@ class PostResource {
 
         val posts = Post.find("authorId", userId)
             .page(offset / limit, limit) // Panache page index is 0-based
-            .list<Post>()
+            .list()
 
         val postDTOs = posts.map { post ->
             // For multiple posts, fetching each author individually can be N+1.
