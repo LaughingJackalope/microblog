@@ -1,0 +1,189 @@
+/* Neo-Retro Theme - Initial Setup */
+:root {
+    --font-family-main: 'Courier New', Courier, monospace; /* Classic retro mono font */
+    --font-family-heading: 'Arial Black', Gadget, sans-serif; /* Blocky, impactful for headers */
+
+    --background-color: #F0F0F0; /* Light grey, clean */
+    --text-color: #1E1E1E; /* Very dark grey, almost black */
+
+    --primary-color: #005A9C; /* A strong, classic blue */
+    --accent-color: #FFD700; /* Gold/Yellow for accents - can be used sparingly */
+    --secondary-accent-color: #D9534F; /* A muted retro red for warnings or highlights */
+
+    --container-bg: #FFFFFF;
+    --container-border: #CCCCCC;
+    --container-shadow: 5px 5px 0px rgba(0, 0, 0, 0.1);
+
+    --button-bg: var(--primary-color);
+    --button-text: #FFFFFF;
+    --button-hover-bg: #00487A; /* Darker shade of primary */
+    --button-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+
+    --input-bg: #FFFFFF;
+    --input-border: #B0B0B0;
+    --input-focus-border: var(--primary-color);
+
+    --header-bg: var(--text-color);
+    --header-text: var(--background-color);
+
+    --card-bg: #FAFAFA;
+    --card-border: #E0E0E0;
+    --card-shadow: 3px 3px 0px rgba(0,0,0,0.05);
+
+    --link-color: var(--primary-color);
+    --link-hover-color: var(--accent-color);
+
+    font-size: 16px; /* Base font size */
+}
+
+body {
+    font-family: var(--font-family-main);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+header {
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    padding: 1rem 1.5rem;
+    text-align: center;
+    border-bottom: 3px solid var(--primary-color);
+}
+
+header h1 {
+    font-family: var(--font-family-heading);
+    margin: 0;
+    font-size: 2.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+main {
+    flex-grow: 1;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: var(--container-bg);
+    border: 1px solid var(--container-border);
+    box-shadow: var(--container-shadow);
+    border-radius: 0px; /* Sharp corners for retro, but subtle shadow for neo */
+}
+
+footer {
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    text-align: center;
+    padding: 0.8rem;
+    font-size: 0.9rem;
+    border-top: 3px solid var(--primary-color);
+}
+
+h2 {
+    font-family: var(--font-family-heading);
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--container-border);
+    padding-bottom: 0.4rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+section {
+    margin-bottom: 2.5rem;
+}
+
+input[type="text"],
+input[type="email"], /* Add other input types as needed */
+textarea {
+    font-family: var(--font-family-main);
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    color: var(--text-color);
+    border-radius: 0; /* Sharp corners */
+    box-sizing: border-box; /* Consistent sizing */
+    width: 100%; /* Default to full width within their container */
+    margin-bottom: 1rem; /* Spacing */
+    transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 2px rgba(0, 90, 156, 0.2); /* Subtle focus ring, using primary color */
+}
+
+textarea {
+    min-height: 80px;
+    resize: vertical; /* Allow vertical resize, not horizontal */
+}
+
+
+/* Basic form elements styling will be added as components are built */
+button {
+    font-family: var(--font-family-heading);
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: var(--button-shadow);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background-color 0.2s ease-out, transform 0.1s ease;
+}
+
+button:hover, button:focus {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-1px); /* Subtle lift */
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.25);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--link-color);
+}
+
+a:hover {
+    color: var(--link-hover-color);
+    border-bottom-style: solid;
+}
+
+/* Utility classes (optional, can be expanded) */
+.text-center {
+    text-align: center;
+}
+
+.error-message {
+    color: var(--secondary-accent-color);
+    background-color: #fdd;
+    border: 1px solid var(--secondary-accent-color);
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 0;
+}
+
+.loading-message {
+    color: var(--primary-color);
+    padding: 1rem;
+    text-align: center;
+}
