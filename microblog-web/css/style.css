@@ -3,38 +3,102 @@
     --font-family-main: 'Courier New', Courier, monospace; /* Classic retro mono font */
     --font-family-heading: 'Arial Black', Gadget, sans-serif; /* Blocky, impactful for headers */
 
-    --background-color: #F0F0F0; /* Light grey, clean */
-    --text-color: #1E1E1E; /* Very dark grey, almost black */
-
-    --primary-color: #005A9C; /* A strong, classic blue */
-    --accent-color: #FFD700; /* Gold/Yellow for accents - can be used sparingly */
-    --secondary-accent-color: #D9534F; /* A muted retro red for warnings or highlights */
+    /* Light Theme (Default) */
+    --background-color: #F0F0F0;
+    --text-color: #1E1E1E;
+    --primary-color: #005A9C;
+    --accent-color: #FFD700;
+    --secondary-accent-color: #D9534F;
 
     --container-bg: #FFFFFF;
     --container-border: #CCCCCC;
-    --container-shadow: 5px 5px 0px rgba(0, 0, 0, 0.1);
+    --container-shadow-color: rgba(0, 0, 0, 0.1); /* Shadow color part */
+    --container-shadow: 5px 5px 0px var(--container-shadow-color);
 
     --button-bg: var(--primary-color);
     --button-text: #FFFFFF;
-    --button-hover-bg: #00487A; /* Darker shade of primary */
-    --button-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+    --button-hover-bg: #00487A;
+    --button-shadow-color: rgba(0,0,0,0.2); /* Shadow color part */
+    --button-shadow: 2px 2px 0px var(--button-shadow-color);
 
     --input-bg: #FFFFFF;
     --input-border: #B0B0B0;
     --input-focus-border: var(--primary-color);
+    --input-focus-shadow-color: rgba(0, 90, 156, 0.2); /* From primary blue */
 
     --header-bg: var(--text-color);
     --header-text: var(--background-color);
 
     --card-bg: #FAFAFA;
     --card-border: #E0E0E0;
-    --card-shadow: 3px 3px 0px rgba(0,0,0,0.05);
+    --card-shadow-color: rgba(0,0,0,0.05); /* Shadow color part */
+    --card-shadow: 3px 3px 0px var(--card-shadow-color);
 
     --link-color: var(--primary-color);
     --link-hover-color: var(--accent-color);
 
+    /* Feedback Message Colors - Light Theme */
+    --error-text: var(--secondary-accent-color);
+    --error-bg: #FDD;
+    --error-border: var(--secondary-accent-color);
+    --success-text: #3C763D; /* Slightly darker green than previous */
+    --success-bg: #DFF0D8;
+    --success-border: #D6E9C6;
+    --loading-text: #333333;
+    --loading-bg: #E9E9E9;
+    --loading-border: #DDDDDD;
+
+    /* UI Element Specific Colors - Light Theme */
+    --char-counter-text: #777777;
+
     font-size: 16px; /* Base font size */
 }
+
+/* Dark theme variables are defined here, applied when body has .dark-mode class */
+body.dark-mode {
+    --background-color: #1A1A1A;
+    --text-color: #E0E0E0;
+    --primary-color: #3B82F6; /* Brighter blue for dark mode */
+    --accent-color: #FBBF24; /* Richer gold for dark mode */
+    --secondary-accent-color: #F87171; /* Brighter red for dark mode */
+
+    --container-bg: #27272A;
+    --container-border: #52525B;
+    --container-shadow-color: rgba(255, 255, 255, 0.05); /* Light shadow on dark */
+
+    /* button-bg uses --primary-color, which is switched in this scope */
+    /* button-text is #FFFFFF, fine for dark mode */
+    --button-hover-bg: #2563EB; /* This specific override is needed for dark mode */
+    --button-shadow-color: rgba(255,255,255,0.1); /* Light shadow on dark */
+
+    --input-bg: #3F3F46;
+    --input-border: #71717A;
+    /* input-focus-border uses --primary-color */
+    --input-focus-shadow-color: rgba(59, 130, 246, 0.3); /* From primary dark blue */
+
+    /* header-bg uses --text-color, header-text uses --background-color, which are switched in this scope */
+
+    --card-bg: #2D2D2D;
+    --card-border: #4A4A4A;
+    --card-shadow-color: rgba(255,255,255,0.03); /* Subtle light shadow on dark */
+
+    /* link-color uses --primary-color, link-hover-color uses --accent-color, which are switched in this scope */
+
+    /* Feedback Message Colors - Dark Theme Specific Overrides */
+    --error-text: #FCA5A5;
+    --error-bg: #7f1d1d;
+    /* error-border uses --secondary-accent-color, which is switched */
+    --success-text: #A7F3D0;
+    --success-bg: #065f46;
+    --success-border: #34D399;
+    --loading-text: #E0E0E0;
+    --loading-bg: #3F3F46;
+    --loading-border: #71717A;
+
+    /* UI Element Specific Colors - Dark Theme Specific Overrides */
+    --char-counter-text: #A1A1AA;
+}
+
 
 body {
     font-family: var(--font-family-main);
@@ -46,22 +110,45 @@ body {
     flex-direction: column;
     min-height: 100vh;
     line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
 }
 
 header {
     background-color: var(--header-bg);
     color: var(--header-text);
     padding: 1rem 1.5rem;
-    text-align: center;
+    /* text-align: center; Removed for flex layout */
     border-bottom: 3px solid var(--primary-color);
+    display: flex; /* For aligning title and button */
+    justify-content: space-between; /* Title on left, button on right */
+    align-items: center; /* Vertically align items */
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 header h1 {
     font-family: var(--font-family-heading);
-    margin: 0;
-    font-size: 2.5rem;
+    margin: 0; /* Reset default margin */
+    font-size: 2.2rem; /* Slightly reduce size to make space for button */
     letter-spacing: 1px;
     text-transform: uppercase;
+}
+
+#theme-toggle-button {
+    background: var(--button-bg);
+    border: 1px solid var(--primary-color);
+    color: var(--button-text);
+    padding: 0.4rem 0.8rem;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+    min-width: 40px;
+    text-align: center;
+}
+
+#theme-toggle-button:hover {
+    background: var(--button-hover-bg);
+    border-color: var(--button-hover-bg);
 }
 
 main {
@@ -174,16 +261,19 @@ a:hover {
 }
 
 .error-message {
-    color: var(--secondary-accent-color);
-    background-color: #fdd;
-    border: 1px solid var(--secondary-accent-color);
+    color: var(--error-text);
+    background-color: var(--error-bg);
+    border: 1px solid var(--error-border);
     padding: 0.75rem;
     margin-bottom: 1rem;
     border-radius: 0;
 }
 
-.loading-message {
-    color: var(--primary-color);
+.loading-message { /* This class is used by PostsList status, let's theme it too */
+    color: var(--loading-text);
+    background-color: var(--loading-bg);
+    border: 1px solid var(--loading-border); /* Added border for consistency */
     padding: 1rem;
     text-align: center;
+    border-radius: 0; /* Consistent with error-message */
 }

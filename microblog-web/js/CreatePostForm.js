@@ -59,7 +59,7 @@ class CreatePostForm extends HTMLElement {
                 .char-counter {
                     font-size: 0.8rem;
                     text-align: right;
-                    color: #777;
+                    color: var(--char-counter-text, #777); /* Use CSS Variable */
                     margin-top: -0.75rem; /* Pull it closer to textarea */
                     margin-bottom: 0.75rem;
                 }
@@ -99,22 +99,24 @@ class CreatePostForm extends HTMLElement {
                     text-align: center;
                 }
                 .feedback.success {
-                    background-color: #DFF2BF; /* Light green */
-                    color: #4F8A10; /* Dark green */
-                    border: 1px solid #4F8A10;
+                    background-color: var(--success-bg, #DFF2BF);
+                    color: var(--success-text, #4F8A10);
+                    border: 1px solid var(--success-border, #4F8A10);
                 }
                 .feedback.error {
-                    background-color: #FFD2D2; /* Light red */
-                    color: #D8000C; /* Dark red */
-                    border: 1px solid #D8000C;
+                    background-color: var(--error-bg, #FFD2D2);
+                    color: var(--error-text, #D8000C);
+                    border: 1px solid var(--error-border, #D8000C);
                 }
                 .feedback.loading {
-                    background-color: #E0E0E0;
-                    color: #333;
-                    border: 1px solid #AAA;
+                    background-color: var(--loading-bg, #E0E0E0);
+                    color: var(--loading-text, #333);
+                    border: 1px solid var(--loading-border, #AAA);
                 }
 
                 /* CSS Variable Fallbacks (if not inheriting through Shadow DOM) */
+                /* These ensure the component has *some* styling if global vars aren't available */
+                /* For a theme to fully apply, these fallbacks should ideally match the light theme defaults */
                 :host {
                     --font-family-main: ${getComputedStyle(document.documentElement).getPropertyValue('--font-family-main').trim() || "'Courier New', Courier, monospace"};
                     --font-family-heading: ${getComputedStyle(document.documentElement).getPropertyValue('--font-family-heading').trim() || "'Arial Black', Gadget, sans-serif"};
@@ -126,10 +128,20 @@ class CreatePostForm extends HTMLElement {
                     --button-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--button-bg').trim() || '#005A9C'};
                     --button-text: ${getComputedStyle(document.documentElement).getPropertyValue('--button-text').trim() || '#FFFFFF'};
                     --button-hover-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--button-hover-bg').trim() || '#00487A'};
-                    --button-shadow: ${getComputedStyle(document.documentElement).getPropertyValue('--button-shadow').trim() || '2px 2px 0px rgba(0,0,0,0.2)'};
+                    /* --button-shadow: var(--button-shadow); Main style.css handles this */
                     --card-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#FAFAFA'};
                     --card-border: ${getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim() || '#E0E0E0'};
-                    --card-shadow: ${getComputedStyle(document.documentElement).getPropertyValue('--card-shadow').trim() || '3px 3px 0px rgba(0,0,0,0.05)'};
+                    /* --card-shadow: var(--card-shadow); Main style.css handles this */
+                    --char-counter-text: ${getComputedStyle(document.documentElement).getPropertyValue('--char-counter-text').trim() || '#777777'};
+                    --error-text: ${getComputedStyle(document.documentElement).getPropertyValue('--error-text').trim() || '#D8000C'};
+                    --error-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--error-bg').trim() || '#FFD2D2'};
+                    --error-border: ${getComputedStyle(document.documentElement).getPropertyValue('--error-border').trim() || '#D8000C'};
+                    --success-text: ${getComputedStyle(document.documentElement).getPropertyValue('--success-text').trim() || '#4F8A10'};
+                    --success-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--success-bg').trim() || '#DFF2BF'};
+                    --success-border: ${getComputedStyle(document.documentElement).getPropertyValue('--success-border').trim() || '#4F8A10'};
+                    --loading-text: ${getComputedStyle(document.documentElement).getPropertyValue('--loading-text').trim() || '#333333'};
+                    --loading-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--loading-bg').trim() || '#E0E0E0'};
+                    --loading-border: ${getComputedStyle(document.documentElement).getPropertyValue('--loading-border').trim() || '#AAAAAA'};
                 }
             </style>
             <form>

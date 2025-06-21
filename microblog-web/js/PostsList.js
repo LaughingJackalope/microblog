@@ -30,19 +30,23 @@ class PostsList extends HTMLElement {
                     font-family: var(--font-family-main, 'Courier New', monospace);
                     font-size: 1.1rem;
                     border-radius: 0;
+                    /* Ensure borders are consistent for all status types if desired */
+                    border: 1px solid transparent; /* Default to transparent border */
                 }
                 .loading {
-                    color: var(--text-color, #1E1E1E);
-                    background-color: var(--container-bg, #FFFFFF);
+                    color: var(--loading-text, #333);
+                    background-color: var(--loading-bg, #E9E9E9);
+                    border-color: var(--loading-border, #DDDDDD);
                 }
                 .error {
-                    color: var(--secondary-accent-color, #D9534F);
-                    background-color: #fdd; /* Light red */
-                    border: 1px solid var(--secondary-accent-color, #D9534F);
+                    color: var(--error-text, #D8000C);
+                    background-color: var(--error-bg, #FFD2D2);
+                    border-color: var(--error-border, #D8000C);
                 }
                 .empty {
-                    color: #555;
+                    color: var(--char-counter-text, #555); /* Using char-counter for similar muted text */
                     background-color: var(--container-bg, #FFFFFF);
+                    /* border-color: var(--container-border, #CCC); /* Optional: border for empty state */
                 }
                 #posts-container {
                     /* Styles for the container itself, if any, beyond host styles */

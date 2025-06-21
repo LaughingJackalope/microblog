@@ -1,6 +1,9 @@
 // Main Application Logic
-// Import Web Components to ensure they are registered
 
+// Theme toggle logic - should run early to set theme
+import './theme-toggle.js';
+
+// Import Web Components to ensure they are registered
 // PostItem component - used by PostsList
 import './PostItem.js';
 
