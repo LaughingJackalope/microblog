@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: frontend
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          # Note: Replace with your actual image name
+          image: microblog-frontend:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: microblog-config
+                  key: NEXT_PUBLIC_API_URL
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: microblog-config
+                  key: API_URL
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: microblog-secrets
+                  key: NEXTJS_SESSION_SECRET
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: microblog-config
+                  key: NODE_ENV
+          ports:
+            - containerPort: 3000

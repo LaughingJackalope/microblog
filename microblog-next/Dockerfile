@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install --production=false
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -22,6 +22,8 @@ COPY . .
 # Build Next.js app
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED 1
+# Set SESSION_SECRET for build (can be any value for build-time)
+ENV SESSION_SECRET=build-time-secret-not-used-in-runtime
 
 RUN npm run build
 

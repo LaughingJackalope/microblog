@@ -3,6 +3,8 @@
  * This runs on the Next.js server (BFF layer)
  */
 
+import type { User, TokenResponse } from "./types";
+
 const API_URL = process.env.API_URL || "http://localhost:8000";
 
 export class APIError extends Error {
@@ -67,7 +69,7 @@ export const authAPI = {
   },
 
   async login(username: string, password: string) {
-    return fetchAPI<{ access_token: string; token_type: string; expires_in: number }>(
+    return fetchAPI<TokenResponse>(
       "/v1/auth/token",
       {
         method: "POST",
@@ -80,7 +82,7 @@ export const authAPI = {
 // Users API
 export const usersAPI = {
   async getMe(token: string) {
-    return fetchAPI("/v1/users/me", {
+    return fetchAPI<User>("/v1/users/me", {
       headers: { Authorization: `Bearer ${token}` },
     });
   },
@@ -123,7 +125,7 @@ export const usersAPI = {
 // Posts API
 export const postsAPI = {
   async createPost(token: string, content: string) {
-    return fetchAPI("/v1/posts", {
+    return fetchAPI<{ id: string }>("/v1/posts", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify({ content }),
