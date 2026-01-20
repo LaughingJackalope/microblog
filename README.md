@@ -1,5 +1,8 @@
 # Microblog - Modern Full-Stack Demo
 
+![CI/CD](https://github.com/LaughingJackalope/microblog/actions/workflows/ci.yml/badge.svg)
+![CodeQL](https://github.com/LaughingJackalope/microblog/actions/workflows/codeql.yml/badge.svg)
+
 A microblogging platform built to demonstrate mastery of the **2026 Server-First Stack**: Next.js 15 + FastAPI + PostgreSQL.
 
 ## 🎯 What This Demonstrates
