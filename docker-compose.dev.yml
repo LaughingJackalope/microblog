@@ -1,0 +1,32 @@
+# Development overrides for docker-compose
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./microblog-python
+      dockerfile: Dockerfile
+    volumes:
+      - ./microblog-python:/app
+    environment:
+      ENVIRONMENT: development
+    command: >
+      sh -c "
+        pip install watchdog &&
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  frontend:
+    build:
+      context: ./microblog-next
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./microblog-next:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      NODE_ENV: development
+    command: npm run dev
