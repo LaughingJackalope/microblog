@@ -13,8 +13,22 @@ export interface SessionData {
   isLoggedIn: boolean;
 }
 
+// Validate SESSION_SECRET at module load time
+if (!process.env.SESSION_SECRET) {
+  throw new Error(
+    "SESSION_SECRET environment variable is required. Generate one with: openssl rand -base64 32"
+  );
+}
+
+if (process.env.SESSION_SECRET.length < 32) {
+  throw new Error(
+    "SESSION_SECRET must be at least 32 characters long for security. Current length: " +
+      process.env.SESSION_SECRET.length
+  );
+}
+
 const sessionOptions: SessionOptions = {
-  password: process.env.SESSION_SECRET as string,
+  password: process.env.SESSION_SECRET,
   cookieName: "microblog_session",
   cookieOptions: {
     secure: process.env.NODE_ENV === "production",
