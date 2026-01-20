@@ -19,6 +19,9 @@ class User : PanacheEntityBase {
 
     @Column(unique = true, nullable = false, length = 50)
     lateinit var username: String
+    
+    @Column(unique = true, nullable = false, length = 255)
+    lateinit var email: String
 
     @Column(length = 100)
     var displayName: String? = null
@@ -48,6 +51,7 @@ fun User.toDTO(): UserDTO {
     return UserDTO(
         id = this.id,
         username = this.username,
+        email = this.email,
         displayName = this.displayName,
         bio = this.bio,
         joinDate = this.joinDate.toString(),
@@ -60,12 +64,13 @@ fun User.toDTO(): UserDTO {
 // Helper function to map RegisterUserRequest to User entity
 // This would typically also handle password hashing before persistence
 fun RegisterUserRequest.toEntity(id: String, joinDate: Instant): User {
-    val user = User()
-    user.id = id
-    user.username = this.username
-    user.displayName = this.displayName ?: this.username
-    user.bio = this.bio
-    user.joinDate = joinDate
-    // postCount, followerCount, followingCount default to 0 in the entity
-    return user
+    return User().apply {
+        this.id = id
+        this.username = this@toEntity.username
+        this.email = this@toEntity.email
+        this.displayName = this@toEntity.displayName ?: this@toEntity.username
+        this.bio = this@toEntity.bio
+        this.joinDate = joinDate
+        // postCount, followerCount, followingCount default to 0 in the entity
+    }
 }

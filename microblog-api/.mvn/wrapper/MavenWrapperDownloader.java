@@ -84,10 +84,14 @@ public final class MavenWrapperDownloader {
         log(" - Downloader complete");
     }
 
-    private static void log(String msg) {
-        if (VERBOSE) {
-            System.out.println(msg);
-        }
+// Import statements
+// import org.apache.commons.text.StringEscapeUtils;
+// Apache Commons Text library provides methods for escaping special characters in strings
+
+private static void log(String msg) {
+    if (VERBOSE) {
+        System.out.println(StringEscapeUtils.escapeJava(msg));
     }
+}
 
 }
