@@ -60,6 +60,11 @@ spec:
                 configMapKeyRef:
                   name: microblog-config
                   key: ENVIRONMENT
+            - name: ALLOWED_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: microblog-config
+                  key: ALLOWED_ORIGINS
           ports:
             - containerPort: 8000
           readinessProbe:

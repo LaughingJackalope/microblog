@@ -2,10 +2,15 @@
 
 This project includes Kubernetes manifests for deploying the Microblog application to a Kubernetes cluster, such as the one provided by Docker Desktop.
 
+## Status: ✅ VERIFIED WORKING
+
+The Kubernetes deployment has been tested and verified on Docker Desktop's Kubernetes cluster.
+
 ## Prerequisites
 
-- Docker Desktop with Kubernetes enabled.
-- `kubectl` command-line tool installed.
+- Docker Desktop with Kubernetes enabled
+- `kubectl` command-line tool installed
+- Images built locally (see below)
 
 ## Building Images
 
@@ -49,9 +54,23 @@ docker build -t microblog-frontend:latest ./microblog-next
 
 ## Verifying the Deployment
 
+### Quick Test
 ```bash
-kubectl get pods
-kubectl get services
+# Run comprehensive test suite
+./scripts/test_k8s_deployment.sh
+```
+
+### Manual Verification
+```bash
+# Check all resources
+kubectl get pods,svc -l 'app in (db,backend,frontend)'
+
+# Check backend health
+kubectl port-forward svc/backend 8001:8000 &
+curl http://localhost:8001/health
+
+# Access frontend
+open http://localhost:3000
 ```
 
 ## Cleaning Up
@@ -61,6 +80,27 @@ To remove all resources:
 kubectl delete -f k8s/
 ```
 
-## Note on Database Migrations
+## Notes
 
-In this Kubernetes setup, migrations are handled in the backend container's start command, similar to the Docker Compose setup. For a production-ready Kubernetes setup, consider using a Kubernetes `Job` or an init container to run `alembic upgrade head`.
+### Database Migrations
+Migrations are handled in the backend container's start command, similar to the Docker Compose setup. For production, consider using a Kubernetes `Job` or an init container to run `alembic upgrade head`.
+
+### LoadBalancer on Docker Desktop
+The frontend service uses type `LoadBalancer`. On Docker Desktop, this will show as `<pending>` but the service is actually accessible at `http://localhost:3000`.
+
+### What's Working
+- ✅ PostgreSQL database with persistent storage
+- ✅ FastAPI backend with health checks and readiness probes
+- ✅ Next.js frontend accessible at localhost:3000
+- ✅ Service-to-service communication (frontend → backend → db)
+- ✅ ConfigMaps and Secrets for configuration
+- ✅ All observability features (logging, metrics, rate limiting)
+
+## Differences from Docker Compose
+
+The Kubernetes deployment is functionally identical to Docker Compose but with these k8s-specific features:
+- Persistent volume claims for database storage
+- Liveness and readiness probes for health checking
+- ConfigMaps/Secrets for configuration management
+- Service discovery via DNS (http://backend:8000, http://db:5432)
+- Easier horizontal scaling with `kubectl scale`
