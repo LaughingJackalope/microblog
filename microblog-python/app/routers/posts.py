@@ -13,7 +13,9 @@ from app.db.post import Post
 from app.db.user import User
 from app.dependencies import CurrentUser
 from app.models.post import PostCreate, PostList, PostPublic
-from app.models.user import PostAuthor
+from app.models.user import PostAuthor, UserPublic
+from app.services.posts import PostService
+from app.services.users import UserService
 
 router = APIRouter(prefix="/v1/posts", tags=["posts"])
 
@@ -25,22 +27,15 @@ async def create_post(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> PostPublic:
     """Create a new post."""
-    post = Post(
-        id=f"post_{uuid4()}",
+    post = await PostService.create_post(
+        db=db,
         content=post_data.content,
         author_id=current_user.id,
     )
 
-    db.add(post)
-    await db.flush()
-    await db.refresh(post, ["author"])
-
-    return PostPublic(
-        id=post.id,
-        content=post.content,
-        created_at=post.created_at,
-        author=PostAuthor.model_validate(post.author),
-    )
+    # Load author counts if needed by schema, but PostAuthor only needs basic info.
+    # We should ensure post.author is loaded which PostService.create_post does.
+    return PostPublic.model_validate(post)
 
 
 @router.get("/{post_id}", response_model=PostPublic)
@@ -49,10 +44,7 @@ async def get_post(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> PostPublic:
     """Get a specific post by ID."""
-    result = await db.execute(
-        select(Post).where(Post.id == post_id).options(selectinload(Post.author))
-    )
-    post = result.scalar_one_or_none()
+    post = await PostService.get_post_by_id(db, post_id)
 
     if not post:
         raise HTTPException(
@@ -60,12 +52,7 @@ async def get_post(
             detail="Post not found",
         )
 
-    return PostPublic(
-        id=post.id,
-        content=post.content,
-        created_at=post.created_at,
-        author=PostAuthor.model_validate(post.author),
-    )
+    return PostPublic.model_validate(post)
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -75,8 +62,7 @@ async def delete_post(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> None:
     """Delete a post (owner only)."""
-    result = await db.execute(select(Post).where(Post.id == post_id))
-    post = result.scalar_one_or_none()
+    post = await PostService.get_post_by_id(db, post_id)
 
     if not post:
         raise HTTPException(
@@ -90,8 +76,7 @@ async def delete_post(
             detail="Not authorized to delete this post",
         )
 
-    await db.delete(post)
-    await db.flush()
+    await PostService.delete_post(db, post)
 
 
 @router.get("/user/{user_id}", response_model=PostList)
@@ -103,8 +88,7 @@ async def get_user_posts(
 ) -> PostList:
     """Get all posts by a specific user with pagination."""
     # Check if user exists
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalar_one_or_none()
+    user = await UserService.get_user_by_id(db, user_id)
 
     if not user:
         raise HTTPException(
@@ -112,33 +96,10 @@ async def get_user_posts(
             detail="User not found",
         )
 
-    # Get total count
-    count_result = await db.execute(
-        select(func.count()).select_from(Post).where(Post.author_id == user_id)
-    )
-    total = count_result.scalar_one()
-
-    # Get posts
-    posts_result = await db.execute(
-        select(Post)
-        .where(Post.author_id == user_id)
-        .options(selectinload(Post.author))
-        .order_by(Post.created_at.desc())
-        .limit(limit)
-        .offset(offset)
-    )
-    posts = posts_result.scalars().all()
+    posts, total = await PostService.get_user_posts(db, user_id, limit, offset)
 
     return PostList(
-        posts=[
-            PostPublic(
-                id=post.id,
-                content=post.content,
-                created_at=post.created_at,
-                author=PostAuthor.model_validate(post.author),
-            )
-            for post in posts
-        ],
+        posts=[PostPublic.model_validate(post) for post in posts],
         total=total,
         offset=offset,
         limit=limit,
@@ -153,37 +114,10 @@ async def get_timeline(
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> PostList:
     """Get timeline of posts from users you follow (plus your own)."""
-    # Get IDs of users being followed (plus self)
-    following_ids = [user.id for user in current_user.following]
-    following_ids.append(current_user.id)
-
-    # Get total count
-    count_result = await db.execute(
-        select(func.count()).select_from(Post).where(Post.author_id.in_(following_ids))
-    )
-    total = count_result.scalar_one()
-
-    # Get posts
-    posts_result = await db.execute(
-        select(Post)
-        .where(Post.author_id.in_(following_ids))
-        .options(selectinload(Post.author))
-        .order_by(Post.created_at.desc())
-        .limit(limit)
-        .offset(offset)
-    )
-    posts = posts_result.scalars().all()
+    posts, total = await PostService.get_timeline(db, current_user, limit, offset)
 
     return PostList(
-        posts=[
-            PostPublic(
-                id=post.id,
-                content=post.content,
-                created_at=post.created_at,
-                author=PostAuthor.model_validate(post.author),
-            )
-            for post in posts
-        ],
+        posts=[PostPublic.model_validate(post) for post in posts],
         total=total,
         offset=offset,
         limit=limit,

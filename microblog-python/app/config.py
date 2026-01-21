@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://postgres:postgres@localhost:5432/microblog"
 
     # Security
-    secret_key: str
+    secret_key: str = "32_characters_long_default_secret_key"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 

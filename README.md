@@ -252,7 +252,32 @@ npm run dev
 
 Frontend will be available at http://localhost:3000
 
-### Step 4: Create First User
+### Step 4: Seed the Database (Optional)
+
+Populate your database with realistic test data to explore the feed ranking algorithm:
+
+```bash
+cd microblog-python
+
+# Run the seeding script
+python scripts/seed_database.py
+
+# Or use the convenience script if running in Docker
+./scripts/seed.sh
+```
+
+This creates:
+- **10 diverse users** with realistic profiles (password: `password123` for all)
+- **50+ posts** with varied timestamps and content (emojis, UTF-8, varying lengths)
+- **Following graph** to test social feed logic (influencers, active followers, mutual follows)
+
+Login as any user (e.g., `techguru`) to test the "For You" feed immediately!
+
+**See [microblog-python/scripts/README.md](microblog-python/scripts/README.md) for full documentation.**
+
+### Step 5: Create First User (Manual)
+
+Alternatively, create your own user:
 
 1. Navigate to http://localhost:3000
 2. Click "Sign up"
@@ -307,6 +332,7 @@ make migrate     # Run migrations
 make revision    # Create new migration
 make types       # Generate TypeScript types
 make test        # Run pytest tests
+python scripts/seed_database.py  # Seed test data (10 users, 50+ posts)
 ```
 
 ### Frontend

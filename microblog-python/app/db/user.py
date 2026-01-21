@@ -55,21 +55,6 @@ class User(Base, TimestampMixin):
     )
 
     @property
-    def post_count(self) -> int:
-        """Count of posts by this user."""
-        return len(self.posts)
-
-    @property
-    def follower_count(self) -> int:
-        """Count of followers."""
-        return len(self.followers)
-
-    @property
-    def following_count(self) -> int:
-        """Count of users being followed."""
-        return len(self.following)
-
-    @property
     def join_date(self) -> datetime:
         """Alias for created_at for API consistency."""
         return self.created_at

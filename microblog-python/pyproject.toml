@@ -19,6 +19,7 @@ dependencies = [
     "requests>=2.31.0",
     "prometheus-fastapi-instrumentator>=7.0.0",
     "psutil>=6.0.0",
+    "faker>=30.0.0",
 ]
 
 [project.optional-dependencies]

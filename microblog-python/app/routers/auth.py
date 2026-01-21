@@ -13,6 +13,7 @@ from app.db.user import User
 from app.models.auth import TokenRequest, TokenResponse
 from app.models.user import UserCreate, UserPublic
 from app.security import create_access_token, get_password_hash, verify_password
+from app.services.users import UserService
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
@@ -52,7 +53,8 @@ async def register(
     await db.flush()
     await db.refresh(user)
 
-    return UserPublic.model_validate(user)
+    user_with_counts = await UserService.get_user_with_counts(db, user.id)
+    return UserPublic.model_validate(user_with_counts)
 
 
 @router.post("/token", response_model=TokenResponse)

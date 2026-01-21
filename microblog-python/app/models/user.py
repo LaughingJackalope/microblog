@@ -23,7 +23,9 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     """Schema for updating user profile."""
 
-    display_name: str | None = Field(None, max_length=100)
+    model_config = ConfigDict(populate_by_name=True)
+
+    display_name: str | None = Field(None, max_length=100, alias="displayName")
     bio: str | None = Field(None, max_length=250)
 
 
@@ -38,9 +40,9 @@ class UserPublic(BaseModel):
     display_name: str | None
     bio: str | None
     join_date: datetime
-    post_count: int
-    follower_count: int
-    following_count: int
+    post_count: int = 0
+    follower_count: int = 0
+    following_count: int = 0
 
 
 class UserInDB(UserPublic):

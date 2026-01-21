@@ -145,8 +145,12 @@ class TestUserPosts:
         data = response.json()
         assert data["total"] == 3
         assert len(data["posts"]) == 3
-        # Should be in reverse chronological order
-        assert data["posts"][0]["content"] == "Post 2"
+        
+        # Sort by ID descending to match the service's stable ordering
+        # Post {i} has content "Post {i}", and we expect newest first.
+        # SQLite resolution might cause identical timestamps, but IDs are unique and ordered.
+        contents = [p["content"] for p in data["posts"]]
+        assert contents == ["Post 2", "Post 1", "Post 0"]
 
     @pytest.mark.asyncio
     async def test_get_user_posts_pagination(self, client: AsyncClient, test_user):
