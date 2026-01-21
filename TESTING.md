@@ -256,6 +256,222 @@ This test validates the **entire stack**. If it passes, we know:
 
 ---
 
+## Layer 4: "Outer Loop" Quality Enforcement (Pro-Tier)
+
+**Tool:** Playwright + axe-playwright
+
+**What We Test:**
+- **Visual Regression:** Pixel-perfect UI consistency across browsers
+- **Accessibility:** WCAG 2.1 compliance auditing
+- **Performance:** Cumulative Layout Shift (CLS) tracking
+- **Server Action Behavior:** Optimistic updates, revalidation without page reload
+
+### Why "Outer Loop"?
+
+The Outer Loop transforms this project from a "demo" into a "product" by enforcing:
+- **Brand Integrity:** Visual regressions are caught automatically
+- **Inclusive Design:** Accessibility violations block deployment
+- **UX Stability:** Layout shifts are measured and minimized
+
+### Running Outer Loop Tests
+
+```bash
+cd microblog-next
+
+# Run all quality tests (visual + mutations + accessibility)
+npm run e2e
+
+# Run ONLY visual regression tests
+npm run e2e:visual
+
+# Run ONLY Server Action behavioral tests
+npm run e2e:mutations
+
+# Generate/update baseline screenshots (first time or after intentional UI changes)
+npm run e2e:update-snapshots
+
+# View test report
+npm run e2e:report
+
+# Debug failing tests
+npm run e2e:debug
+```
+
+### Prerequisites
+
+**Full stack must be running:**
+```bash
+# Terminal 1: PostgreSQL
+docker run --name microblog-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=microblog -p 5432:5432 -d postgres:16
+
+# Terminal 2: FastAPI
+cd microblog-python && uvicorn app.main:app --reload --port 8000
+
+# Terminal 3: Run tests (Next.js auto-starts via playwright.config.ts)
+cd microblog-next && npm run e2e:visual
+```
+
+### Visual Regression Testing ("The Pixel Shield")
+
+Tests screenshot comparison across:
+- **Desktop:** Chromium, Firefox
+- **Mobile:** iPhone 13 viewport
+- **Components:** PostCard, Sidebar, Timeline
+- **Full Pages:** Home, Login, Register
+
+**Example:**
+```typescript
+test("should have consistent PostCard visual across viewports", async ({ page }) => {
+  const postCard = page.locator("article").filter({ hasText: postContent }).first();
+
+  // This will fail if the UI differs by more than 50 pixels from baseline
+  await expect(postCard).toHaveScreenshot("post-card-component.png", {
+    maxDiffPixels: 50,
+  });
+});
+```
+
+**When to Update Snapshots:**
+```bash
+# After intentional Tailwind/CSS changes
+npm run e2e:update-snapshots
+
+# Review the diff images in test-results/ before committing
+git diff e2e/*.spec.ts-snapshots/
+```
+
+### Accessibility Testing ("The Inclusive UI Audit")
+
+Uses `axe-playwright` to scan every route for WCAG 2.1 violations.
+
+**Example:**
+```typescript
+test("should pass A11y audit on Home page", async ({ page }) => {
+  const results = await new AxeBuilder({ page }).analyze();
+
+  // Fail build on critical/serious violations
+  const violations = results.violations.filter(
+    (v) => v.impact === "critical" || v.impact === "serious"
+  );
+
+  expect(violations).toHaveLength(0);
+});
+```
+
+**What Gets Caught:**
+- Missing ARIA labels
+- Low contrast ratios
+- Missing alt text on images
+- Inaccessible form inputs
+- Keyboard navigation issues
+
+### Performance Testing (CLS Tracking)
+
+Verifies that Suspense skeletons prevent layout shifts during RSC streaming.
+
+**Example:**
+```typescript
+test("should maintain layout stability during RSC streaming", async ({ page }) => {
+  const cls = await page.evaluate(() => {
+    return new Promise<number>((resolve) => {
+      let clsValue = 0;
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (!(entry as any).hadRecentInput) {
+            clsValue += (entry as any).value;
+          }
+        }
+      });
+      observer.observe({ type: "layout-shift", buffered: true });
+      setTimeout(() => {
+        observer.disconnect();
+        resolve(clsValue);
+      }, 1000);
+    });
+  });
+
+  // Assert CLS is below "good" threshold (0.1)
+  expect(cls).toBeLessThan(0.1);
+});
+```
+
+### Server Action Behavioral Testing
+
+Verifies the "Server-First" mutation pattern works correctly.
+
+**Key Behaviors Tested:**
+- ✅ Optimistic updates without page reload
+- ✅ Loading states during network delays
+- ✅ Zod validation errors displayed correctly
+- ✅ API errors handled gracefully
+- ✅ Form resets after successful submission
+- ✅ Scroll position maintained during mutations
+- ✅ Race conditions handled (rapid successive mutations)
+
+**Example:**
+```typescript
+test("Server Action: should optimistically update and revalidate the feed", async ({ page }) => {
+  const postContent = `Test Post: ${Math.random()}`;
+
+  await page.fill('textarea[name="content"]', postContent);
+  await page.click('button[type="submit"]:has-text("Post")');
+
+  // Post appears WITHOUT full page reload (RSC revalidation)
+  await expect(page.locator(`text=${postContent}`)).toBeVisible();
+
+  // Verify no reload occurred
+  const didReload = await page.evaluate(() => {
+    return (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type === "reload";
+  });
+  expect(didReload).toBe(false);
+});
+```
+
+### Test Files
+
+| File | Purpose | Key Validations |
+|------|---------|----------------|
+| `e2e/visual-quality.spec.ts` | Visual regression + A11y | Screenshot diffs, WCAG violations, CLS |
+| `e2e/mutations.spec.ts` | Server Action behavior | Optimistic updates, error handling, no-reload verification |
+
+### Browser Coverage
+
+- **Chromium** (Desktop Chrome)
+- **Firefox** (Desktop Firefox)
+- **Mobile Safari** (iPhone 13)
+
+### CI/CD Integration
+
+```yaml
+# .github/workflows/quality-gate.yml
+e2e-visual:
+  runs-on: ubuntu-latest
+  steps:
+    - run: npm run e2e:visual
+    - name: Upload diff images on failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: visual-diffs
+        path: test-results/
+```
+
+### Interview Talking Points
+
+#### On Visual Regression
+> "I use Playwright's screenshot comparison to enforce pixel-perfect UI consistency. This allows me to refactor Tailwind styles or update components with total confidence that I haven't introduced visual bugs. The CI pipeline fails if any screenshot differs by more than 50 pixels from the baseline."
+
+#### On Accessibility
+> "Every route is automatically scanned for WCAG 2.1 violations using axe-playwright. This ensures our 'Inclusive UI' commitment is enforced in CI, not just documented. Critical and serious violations block deployment."
+
+#### On Performance
+> "I measure Cumulative Layout Shift to prove our Suspense skeletons are well-aligned with the actual content. This ensures users don't experience jarring layout shifts when the FastAPI data streams in. Our CLS is consistently under 0.1, which is Google's 'good' threshold."
+
+#### On Server Actions
+> "I verify that our Server Actions perform optimistic updates without triggering full page reloads. The tests check that the navigation type remains 'navigate' (not 'reload'), proving that RSC revalidation is working correctly. This demonstrates the 'Server-First' pattern in action."
+
+---
+
 ## Testing Strategy: What Gets Tested Where
 
 ### ✅ Test at Python Layer
