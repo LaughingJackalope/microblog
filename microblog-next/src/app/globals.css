@@ -1,21 +1,205 @@
 @import "tailwindcss";
 
+/*
+  MicroBlog Design Tokens
+  Neo-Modern Aesthetic: High contrast, sophisticated palette, intentional rhythm
+  Philosophy: Design tokens express feelings, not just values
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* === FOUNDATION === */
+  --canvas: #fafaf9;  /* Warm white, not stark */
+  --surface: #ffffff;
+  --ink: #1a1614;  /* Almost black with brown warmth */
+  --ink-muted: #57534e;  /* Warm grey for secondary text */
+  --ink-whisper: #a8a29e;  /* Subtle hints */
+
+  /* === BRAND COLORS === */
+  /* Primary: Deep Indigo - Sophisticated, trustworthy, distinctive */
+  --primary-50: #eef2ff;
+  --primary-100: #e0e7ff;
+  --primary-200: #c7d2fe;
+  --primary-300: #a5b4fc;
+  --primary-400: #818cf8;
+  --primary-500: #6366f1;  /* Base primary */
+  --primary-600: #4f46e5;  /* Action state */
+  --primary-700: #4338ca;
+  --primary-800: #3730a3;
+  --primary-900: #312e81;
+
+  /* Accent: Electric Amber - Energy, warmth, creativity */
+  --accent-50: #fffbeb;
+  --accent-100: #fef3c7;
+  --accent-200: #fde68a;
+  --accent-300: #fcd34d;
+  --accent-400: #fbbf24;  /* Base accent */
+  --accent-500: #f59e0b;
+  --accent-600: #d97706;  /* Action state */
+  --accent-700: #b45309;
+  --accent-800: #92400e;
+  --accent-900: #78350f;
+
+  /* Success: Vibrant Emerald - Growth, achievement */
+  --success-50: #ecfdf5;
+  --success-100: #d1fae5;
+  --success-400: #34d399;
+  --success-500: #10b981;  /* Base */
+  --success-600: #059669;  /* Action state */
+  --success-700: #047857;
+
+  /* Warning: Sunset Orange - Caution with warmth */
+  --warning-50: #fff7ed;
+  --warning-100: #ffedd5;
+  --warning-400: #fb923c;
+  --warning-500: #f97316;  /* Base */
+  --warning-600: #ea580c;  /* Action state */
+  --warning-700: #c2410c;
+
+  /* Danger: Crimson - Urgent but not aggressive */
+  --danger-50: #fef2f2;
+  --danger-100: #fee2e2;
+  --danger-400: #f87171;
+  --danger-500: #ef4444;  /* Base */
+  --danger-600: #dc2626;  /* Action state */
+  --danger-700: #b91c1c;
+
+  /* Info: Cool Cyan - Calm, informative */
+  --info-50: #ecfeff;
+  --info-100: #cffafe;
+  --info-400: #22d3ee;
+  --info-500: #06b6d4;  /* Base */
+  --info-600: #0891b2;  /* Action state */
+  --info-700: #0e7490;
+
+  /* === SEMANTIC COLORS === */
+  --action: var(--primary-600);
+  --action-hover: var(--primary-700);
+  --action-muted: var(--primary-100);
+
+  --highlight: var(--accent-400);
+  --highlight-hover: var(--accent-600);
+  --highlight-subtle: var(--accent-50);
+
+  /* === BORDERS & DIVIDERS === */
+  --border: #e7e5e4;  /* Warm grey border */
+  --border-muted: #f5f5f4;  /* Barely there */
+  --border-emphasis: var(--ink-muted);  /* Strong divider */
+
+  /* === SHADOWS (Elevation) === */
+  --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lifted: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-floating: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* === SPACING (Semantic names for rhythm) === */
+  --space-tight: 0.25rem;    /* 4px */
+  --space-snug: 0.5rem;      /* 8px */
+  --space-comfortable: 1rem; /* 16px */
+  --space-relaxed: 1.5rem;   /* 24px */
+  --space-spacious: 2rem;    /* 32px */
+  --space-luxurious: 3rem;   /* 48px */
+
+  /* === RADII === */
+  --radius-tight: 0.25rem;   /* 4px */
+  --radius-comfortable: 0.5rem;  /* 8px */
+  --radius-relaxed: 0.75rem; /* 12px */
+  --radius-round: 9999px;    /* Full circle */
+
+  /* === TYPOGRAPHY SCALE === */
+  --text-display: 3.75rem;   /* 60px - Hero moments */
+  --text-display-line: 1;
+
+  --text-h1: 2.25rem;        /* 36px */
+  --text-h1-line: 2.5rem;
+
+  --text-h2: 1.875rem;       /* 30px */
+  --text-h2-line: 2.25rem;
+
+  --text-h3: 1.5rem;         /* 24px */
+  --text-h3-line: 2rem;
+
+  --text-h4: 1.25rem;        /* 20px */
+  --text-h4-line: 1.75rem;
+
+  --text-body-lg: 1.125rem;  /* 18px */
+  --text-body-lg-line: 1.75rem;
+
+  --text-body: 1rem;         /* 16px */
+  --text-body-line: 1.5rem;
+
+  --text-body-sm: 0.875rem;  /* 14px */
+  --text-body-sm-line: 1.25rem;
+
+  --text-caption: 0.75rem;   /* 12px */
+  --text-caption-line: 1rem;
+
+  /* Typography weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* === MOTION === */
+  --motion-fast: 150ms;
+  --motion-base: 250ms;
+  --motion-slow: 350ms;
+  --motion-slower: 500ms;
+
+  /* Easing curves for organic feel */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* === Z-INDEX LAYERS === */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* === FOUNDATION (DARK) === */
+    --canvas: #0a0a0a;
+    --surface: #171614;  /* Warm dark, not pure black */
+    --ink: #fafaf9;
+    --ink-muted: #a8a29e;
+    --ink-whisper: #57534e;
+
+    /* === BORDERS (DARK) === */
+    --border: #292524;
+    --border-muted: #1c1917;
+    --border-emphasis: #57534e;
+
+    /* Shadows in dark mode are lighter with glow */
+    --shadow-subtle: 0 1px 2px 0 rgb(255 255 255 / 0.05);
+    --shadow-soft: 0 1px 3px 0 rgb(255 255 255 / 0.1), 0 1px 2px -1px rgb(255 255 255 / 0.1);
+    --shadow-medium: 0 4px 6px -1px rgb(255 255 255 / 0.1), 0 2px 4px -2px rgb(255 255 255 / 0.1);
+    --shadow-lifted: 0 10px 15px -3px rgb(255 255 255 / 0.1), 0 4px 6px -4px rgb(255 255 255 / 0.1);
+    --shadow-floating: 0 20px 25px -5px rgb(255 255 255 / 0.1), 0 8px 10px -6px rgb(255 255 255 / 0.1);
+
+    /* Accent adjustments for dark mode */
+    --action-muted: var(--primary-900);
+    --highlight-subtle: var(--accent-900);
   }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--ink);
+  background: var(--canvas);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: var(--text-body-line);
+  font-size: var(--text-body);
+  font-weight: var(--weight-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @layer utilities {

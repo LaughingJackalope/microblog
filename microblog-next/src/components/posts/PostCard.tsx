@@ -2,18 +2,42 @@
  * Post card component
  * Can be used in both Server and Client Components
  */
+"use client";
 
 import Link from "next/link";
 import { PostPublic } from "@/lib/schemas";
+import { useState } from "react";
 
 interface PostCardProps {
   post: PostPublic;
   showActions?: boolean;
 }
 
+const MAX_CHARS = 280;
+
 export function PostCard({ post, showActions = false }: PostCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const createdAt = new Date(post.created_at);
   const timeAgo = getTimeAgo(createdAt);
+
+  const shouldTruncate = post.content.length > MAX_CHARS;
+  
+  const getTruncatedContent = (content: string) => {
+    if (content.length <= MAX_CHARS) return content;
+    
+    // Find the nearest word boundary before MAX_CHARS
+    const truncated = content.slice(0, MAX_CHARS);
+    const lastSpaceIndex = truncated.lastIndexOf(' ');
+    
+    // If we found a space, cut there. Otherwise just hard cut at MAX_CHARS
+    const cutIndex = lastSpaceIndex > 0 ? lastSpaceIndex : MAX_CHARS;
+    
+    return content.slice(0, cutIndex) + "...";
+  };
+
+  const displayContent = !shouldTruncate || isExpanded 
+    ? post.content 
+    : getTruncatedContent(post.content);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -39,7 +63,15 @@ export function PostCard({ post, showActions = false }: PostCardProps) {
           </div>
 
           <p className="mt-2 text-gray-900 dark:text-white whitespace-pre-wrap break-words">
-            {post.content}
+            {displayContent}
+            {shouldTruncate && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="ml-1 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium focus:outline-none focus:underline"
+              >
+                {isExpanded ? "Show Less" : "Show More"}
+              </button>
+            )}
           </p>
 
           <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">

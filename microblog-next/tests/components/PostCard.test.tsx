@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { PostCard } from "@/components/posts/PostCard";
 import type { PostPublic } from "@/lib/schemas";
 
@@ -68,5 +68,39 @@ describe("PostCard", () => {
     const { container } = render(<PostCard post={longPost} />);
     const contentElement = container.querySelector("p");
     expect(contentElement).toHaveClass("break-words");
+  });
+
+  describe("Truncation", () => {
+    const longContent = "This is a very long post that should be truncated because it exceeds the character limit of 280 characters. ".repeat(5); // ~500 chars
+    const longPost: PostPublic = {
+      ...mockPost,
+      content: longContent,
+    };
+
+    it("should truncate long posts initially", () => {
+      render(<PostCard post={longPost} />);
+      expect(screen.getByText(/Show More/i)).toBeInTheDocument();
+      expect(screen.queryByText(longContent)).not.toBeInTheDocument();
+    });
+
+    it("should expand content when Show More is clicked", () => {
+      render(<PostCard post={longPost} />);
+      fireEvent.click(screen.getByText(/Show More/i));
+      expect(screen.getByText(longContent)).toBeInTheDocument();
+      expect(screen.getByText(/Show Less/i)).toBeInTheDocument();
+    });
+
+    it("should collapse content when Show Less is clicked", () => {
+      render(<PostCard post={longPost} />);
+      fireEvent.click(screen.getByText(/Show More/i));
+      fireEvent.click(screen.getByText(/Show Less/i));
+      expect(screen.getByText(/Show More/i)).toBeInTheDocument();
+      expect(screen.queryByText(longContent)).not.toBeInTheDocument();
+    });
+
+    it("should not show Show More for short posts", () => {
+      render(<PostCard post={mockPost} />);
+      expect(screen.queryByText(/Show More/i)).not.toBeInTheDocument();
+    });
   });
 });
