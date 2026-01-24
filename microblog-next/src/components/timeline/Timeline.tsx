@@ -1,11 +1,11 @@
 /**
- * Timeline Server Component
+ * Timeline Server Component - Redesigned with motion and editorial layout
  * Fetches posts from followed users - demonstrates colocation pattern
  */
 
 import { postsAPI } from "@/lib/api";
 import { postListSchema } from "@/lib/schemas";
-import { PostCard } from "@/components/posts/PostCard";
+import { TimelineClient } from "./TimelineClient";
 
 interface TimelineProps {
   token: string;
@@ -18,21 +18,6 @@ export async function Timeline({ token }: TimelineProps) {
   // Validate with Zod (runtime safety)
   const validated = postListSchema.parse(data);
 
-  if (validated.posts.length === 0) {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-        <p className="text-gray-500 dark:text-gray-400">
-          No posts yet. Follow some users or create your first post!
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      {validated.posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
-  );
+  // Pass to client component for animations
+  return <TimelineClient posts={validated.posts} />;
 }
