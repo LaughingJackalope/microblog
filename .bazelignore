@@ -1,0 +1,39 @@
+# Node.js
+microblog-next/node_modules
+microblog-next/.next
+microblog-next/dist
+microblog-next/build
+microblog-next/out
+microblog-next/.turbo
+
+# Python
+microblog-python/venv
+microblog-python/.venv
+microblog-python/__pycache__
+microblog-python/.pytest_cache
+microblog-python/*.egg-info
+microblog-python/.mypy_cache
+microblog-python/.ruff_cache
+
+# Git
+.git
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Test artifacts
+test-results
+playwright-report
+coverage
+htmlcov
+.coverage
+
+# Docker
+.docker

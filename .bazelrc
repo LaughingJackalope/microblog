@@ -1,0 +1,58 @@
+# Common flags for all commands
+common --enable_platform_specific_config
+common --enable_bzlmod=false
+
+# Build flags
+build --incompatible_strict_action_env
+build --verbose_failures
+build --jobs=auto
+
+# Cache settings
+build --disk_cache=~/.cache/bazel
+build --repository_cache=~/.cache/bazel/repos
+
+# Test output
+test --test_output=errors
+test --test_summary=detailed
+
+# Local caching for faster builds
+# Note: local_cpu_resources removed in newer Bazel, uses --jobs instead
+
+# Python-specific settings
+build --action_env=PYTHONHASHSEED=0
+test --test_env=PYTHONHASHSEED=0
+
+# Node.js specific settings
+build --action_env=NODE_ENV=development
+test --test_env=NODE_ENV=test
+
+# Inner loop optimization - fast checks
+build:inner_loop --cache_test_results=yes
+build:inner_loop --test_output=errors
+build:inner_loop --noshow_progress
+
+# Outer loop - comprehensive testing
+build:outer_loop --cache_test_results=no
+build:outer_loop --test_output=all
+build:outer_loop --test_verbose_timeout_warnings
+
+# CI configuration
+build:ci --disk_cache=
+build:ci --repository_cache=
+build:ci --noshow_progress
+build:ci --curses=no
+build:ci --color=yes
+build:ci --terminal_columns=120
+
+# Development mode - more verbose
+build:dev --show_progress
+build:dev --show_timestamps
+
+# macOS specific settings
+build:macos --macos_minimum_os=12.0
+
+# Default to inner_loop optimizations for local development
+build --config=inner_loop
+
+# Query settings
+query --output=label_kind

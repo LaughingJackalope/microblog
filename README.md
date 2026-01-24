@@ -324,7 +324,39 @@ Use these soundbites to demonstrate understanding:
 
 ## 🔧 Development Commands
 
-### Backend
+### Unified Commands (Bazel-powered)
+
+The project now uses Bazel for a unified build system with intelligent caching:
+
+```bash
+# Quick start - show all commands
+make help
+
+# Common workflows
+make dev         # Start both services
+make test        # Run all tests
+make validate    # Fast quality checks (< 5s with cache)
+make sync        # Sync types (Pydantic → TypeScript)
+make fix         # Auto-fix linting issues
+
+# Inner/Outer loop
+make inner-loop  # Fast checks + unit tests (< 30s)
+make outer-loop  # Complete quality suite (5-10 min)
+```
+
+**Key Benefits:**
+- ✅ **10x faster** re-runs with intelligent caching
+- ✅ **Unified interface** across Python and Next.js
+- ✅ **Discoverable** targets via `bazel query '//...'`
+- ✅ **Agent-friendly** for AI-assisted development
+
+**See [BAZEL_GUIDE.md](BAZEL_GUIDE.md) for complete documentation.**
+
+### Service-Specific Commands
+
+You can still use service-specific commands:
+
+#### Backend
 ```bash
 cd microblog-python
 make dev         # Start dev server
@@ -335,7 +367,7 @@ make test        # Run pytest tests
 python scripts/seed_database.py  # Seed test data (10 users, 50+ posts)
 ```
 
-### Frontend
+#### Frontend
 ```bash
 cd microblog-next
 npm run dev      # Start dev server
@@ -348,6 +380,9 @@ npm run e2e      # Run Playwright E2E tests
 
 ### Testing
 ```bash
+# All tests (Bazel)
+make test
+
 # Python tests
 cd microblog-python && pytest
 

@@ -1,0 +1,4 @@
+workspace(name = "microblog")
+
+# Minimal workspace for shell script wrapping
+# This provides a build system layer without requiring full rule integration

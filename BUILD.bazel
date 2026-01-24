@@ -1,0 +1,100 @@
+package(default_visibility = ["//visibility:public"])
+
+# ============================================================================
+# INNER LOOP - Fast feedback for local development (< 30s)
+# ============================================================================
+
+# Fast quality checks across both services
+filegroup(
+    name = "inner_loop_fast_checks",
+    srcs = [
+        "//microblog-python:fast_checks",
+        "//microblog-next:fast_checks",
+    ],
+)
+
+# Unit tests only (Python + Next.js)
+filegroup(
+    name = "inner_loop_unit_tests",
+    srcs = [
+        "//microblog-python:test",
+        "//microblog-next:test",
+    ],
+)
+
+# Complete inner loop - fast checks + unit tests
+filegroup(
+    name = "inner_loop",
+    srcs = [
+        ":inner_loop_fast_checks",
+        ":inner_loop_unit_tests",
+    ],
+)
+
+# ============================================================================
+# OUTER LOOP - Comprehensive testing for CI/CD (5-10 min)
+# ============================================================================
+
+# E2E tests only
+filegroup(
+    name = "outer_loop_e2e",
+    srcs = [
+        "//microblog-next:e2e",
+    ],
+)
+
+# Visual regression tests
+filegroup(
+    name = "outer_loop_visual",
+    srcs = [
+        "//microblog-next:e2e_visual",
+    ],
+)
+
+# Server Action mutation tests
+filegroup(
+    name = "outer_loop_mutations",
+    srcs = [
+        "//microblog-next:e2e_mutations",
+    ],
+)
+
+# Complete outer loop - all quality checks
+filegroup(
+    name = "outer_loop",
+    srcs = [
+        ":inner_loop",
+        ":outer_loop_e2e",
+    ],
+)
+
+# ============================================================================
+# CONVENIENCE TARGETS
+# ============================================================================
+
+# Type generation pipeline
+genrule(
+    name = "sync_types",
+    outs = ["sync_types_out.sh"],
+    cmd = "cp $(location sync_types.sh) $@ && chmod +x $@",
+    srcs = ["sync_types.sh"],
+    executable = True,
+)
+
+# Start both development servers
+genrule(
+    name = "dev",
+    outs = ["dev_out.sh"],
+    cmd = "cp $(location run_dev.sh) $@ && chmod +x $@",
+    srcs = ["run_dev.sh"],
+    executable = True,
+)
+
+# Lint everything
+genrule(
+    name = "lint_fix",
+    outs = ["lint_fix_out.sh"],
+    cmd = "cp $(location run_lint_fix.sh) $@ && chmod +x $@",
+    srcs = ["run_lint_fix.sh"],
+    executable = True,
+)

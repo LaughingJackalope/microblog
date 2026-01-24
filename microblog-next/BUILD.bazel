@@ -1,0 +1,100 @@
+package(default_visibility = ["//visibility:public"])
+
+# Development server
+genrule(
+    name = "dev",
+    outs = ["dev.sh"],
+    cmd = "cp $(location run_dev.sh) $@ && chmod +x $@",
+    srcs = ["run_dev.sh"],
+    executable = True,
+)
+
+# Production build
+genrule(
+    name = "build",
+    outs = ["build.sh"],
+    cmd = "cp $(location run_build.sh) $@ && chmod +x $@",
+    srcs = ["run_build.sh"],
+    executable = True,
+)
+
+# Unit tests (Vitest)
+genrule(
+    name = "test",
+    outs = ["test.sh"],
+    cmd = "cp $(location run_test.sh) $@ && chmod +x $@",
+    srcs = ["run_test.sh"],
+    executable = True,
+)
+
+# Unit tests with UI
+genrule(
+    name = "test_ui",
+    outs = ["test_ui.sh"],
+    cmd = "cp $(location run_test_ui.sh) $@ && chmod +x $@",
+    srcs = ["run_test_ui.sh"],
+    executable = True,
+)
+
+# E2E tests (all)
+genrule(
+    name = "e2e",
+    outs = ["e2e.sh"],
+    cmd = "cp $(location run_e2e.sh) $@ && chmod +x $@",
+    srcs = ["run_e2e.sh"],
+    executable = True,
+)
+
+# E2E visual regression tests
+genrule(
+    name = "e2e_visual",
+    outs = ["e2e_visual.sh"],
+    cmd = "cp $(location run_e2e_visual.sh) $@ && chmod +x $@",
+    srcs = ["run_e2e_visual.sh"],
+    executable = True,
+)
+
+# E2E mutation tests
+genrule(
+    name = "e2e_mutations",
+    outs = ["e2e_mutations.sh"],
+    cmd = "cp $(location run_e2e_mutations.sh) $@ && chmod +x $@",
+    srcs = ["run_e2e_mutations.sh"],
+    executable = True,
+)
+
+# Linting (check only)
+genrule(
+    name = "lint_check",
+    outs = ["lint_check.sh"],
+    cmd = "cp $(location run_lint_check.sh) $@ && chmod +x $@",
+    srcs = ["run_lint_check.sh"],
+    executable = True,
+)
+
+# Linting (with fix)
+genrule(
+    name = "lint_fix",
+    outs = ["lint_fix.sh"],
+    cmd = "cp $(location run_lint_fix.sh) $@ && chmod +x $@",
+    srcs = ["run_lint_fix.sh"],
+    executable = True,
+)
+
+# Type checking
+genrule(
+    name = "typecheck",
+    outs = ["typecheck.sh"],
+    cmd = "cp $(location run_typecheck.sh) $@ && chmod +x $@",
+    srcs = ["run_typecheck.sh"],
+    executable = True,
+)
+
+# Fast checks for inner loop (convenience alias)
+filegroup(
+    name = "fast_checks",
+    srcs = [
+        ":lint_check",
+        ":typecheck",
+    ],
+)
