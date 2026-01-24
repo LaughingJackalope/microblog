@@ -17,8 +17,8 @@ class Post : PanacheEntityBase {
     lateinit var id: String
 
     @field:NotBlank(message = "Content cannot be empty.")
-    @field:Size(max = 280, message = "Post content must not exceed 280 characters.")
-    @Column(length = 280, nullable = false)
+    @field:Size(max = 25000, message = "Post content must not exceed 25000 characters.")
+    @Column(length = 25000, nullable = false)
     lateinit var content: String
 
     @Column(nullable = false)

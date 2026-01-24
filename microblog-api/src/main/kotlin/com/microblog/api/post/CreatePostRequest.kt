@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size
 
 data class CreatePostRequest(
     @field:NotBlank(message = "Content cannot be empty.")
-    @field:Size(max = 280, message = "Post content must not exceed 280 characters.")
+    @field:Size(max = 25000, message = "Post content must not exceed 25000 characters.")
     val content: String,
 
     // In a real scenario with authentication, authorId would come from the security context.

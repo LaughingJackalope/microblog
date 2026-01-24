@@ -74,5 +74,12 @@ data class UserDTO(
         example = "50",
         defaultValue = "0"
     )
-    val followingCount: Int = 0
+    val followingCount: Int = 0,
+
+    @field:Schema(
+        description = "Whether the user has a premium subscription",
+        example = "false",
+        defaultValue = "false"
+    )
+    val isPremium: Boolean = false
 )

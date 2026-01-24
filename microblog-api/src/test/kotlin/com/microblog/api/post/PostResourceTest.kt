@@ -362,6 +362,47 @@ class PostResourceTest {
             .statusCode(404)
     }
 
-    // Removed User.toDTO() as it's not strictly needed if User entity isn't directly used for assertions after this point.
-    // API calls should return DTOs.
+    @Test
+    @Transactional
+    fun `test bifurcated character limits`() {
+        // 1. Standard user limit (280)
+        val longContent = "a".repeat(281)
+        val createPostRequest = PostCreateRequest(content = longContent)
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer $authToken")
+            .body(createPostRequest)
+            .post("/v1/posts")
+            .then()
+            .statusCode(400)
+            .body("error", containsString("exceeds maximum length of 280"))
+
+        // 2. Make user premium
+        val user = User.findById(testUser!!.id)!!
+        user.isPremium = true
+        user.persist()
+
+        // 3. Premium user can post > 280
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer $authToken")
+            .body(createPostRequest)
+            .post("/v1/posts")
+            .then()
+            .statusCode(201)
+
+        // 4. Premium user limit (25000)
+        val veryLongContent = "a".repeat(25001)
+        val createVeryLongPostRequest = PostCreateRequest(content = veryLongContent)
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer $authToken")
+            .body(createVeryLongPostRequest)
+            .post("/v1/posts")
+            .then()
+            .statusCode(400)
+            .body("error", containsString("exceeds maximum length of 25000"))
+    }
 }

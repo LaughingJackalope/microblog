@@ -41,6 +41,9 @@ class User : PanacheEntityBase {
     @Column(nullable = false)
     var followingCount: Int = 0
 
+    @Column(nullable = false)
+    var isPremium: Boolean = false
+
     // Password hash will be stored here in a real app, not plain text
     // For now, we are not storing the password from RegisterUserRequest directly in the entity
     // as it's not part of UserDTO and should be handled separately (e.g., auth service)
@@ -57,7 +60,8 @@ fun User.toDTO(): UserDTO {
         joinDate = this.joinDate.toString(),
         postCount = this.postCount,
         followerCount = this.followerCount,
-        followingCount = this.followingCount
+        followingCount = this.followingCount,
+        isPremium = this.isPremium
     )
 }
 
@@ -72,5 +76,6 @@ fun RegisterUserRequest.toEntity(id: String, joinDate: Instant): User {
         this.bio = this@toEntity.bio
         this.joinDate = joinDate
         // postCount, followerCount, followingCount default to 0 in the entity
+        this.isPremium = false // Default to standard tier
     }
 }

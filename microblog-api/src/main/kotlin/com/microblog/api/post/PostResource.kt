@@ -49,7 +49,8 @@ class PostResource {
     private val logger = Logger.getLogger(PostResource::class.java)
     
     companion object {
-        private const val MAX_POST_LENGTH = 1000
+        private const val STANDARD_POST_LENGTH = 280
+        private const val MAX_POST_LENGTH = 25000
         private const val DEFAULT_PAGE_SIZE = 20
         private const val MAX_PAGE_SIZE = 100
     }
@@ -108,9 +109,11 @@ class PostResource {
                 .build()
         }
 
-        if (request.content.length > MAX_POST_LENGTH) {
+        val limit = if (author.isPremium) MAX_POST_LENGTH else STANDARD_POST_LENGTH
+
+        if (request.content.length > limit) {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(mapOf("error" to "Post content exceeds maximum length of $MAX_POST_LENGTH characters"))
+                .entity(mapOf("error" to "Post content exceeds maximum length of $limit characters for your tier"))
                 .build()
         }
 
